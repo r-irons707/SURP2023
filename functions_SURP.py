@@ -31,6 +31,7 @@ def RADEC_to_source(RA,DEC,image_path,cutout):
         pix: pixel location of the source on the image. dtype: int'''
     # convert to degrees from hour/min/sec
     c = SkyCoord(RA+DEC, unit=(u.hourangle, u.deg))
+    # print('RA and DEC,RA,DEC')
     print('RA/DEC converted to deg:',c)
     # single out pixel location
     image = fits.open(image_path)
@@ -66,37 +67,47 @@ def pix_to_source(pix,image_path,cutout):
 
 # define a function to read in each of the results from tony's txt file
 def file_reader(file_path,lines,img_path):
-    '''input:
+    '''The purpose of this function is to read in (hardcoded indices) coordinates
+    of the DGCs from a file.
+    input:
         file_path: a string of the file path to be opened
         lines: array with the number of lines to be read (not indexed at 0)
     returns:
         coords: coordinates of object in RA/DEC
-        RADEC: pixel coordinates of the target'''
-    coords = []
-    RADEC = []
+        RADEC: pixel coordinates of the target
+        gal_img: cutout image of the target galaxy'''
+    coords = [] # list of pixel coordinates of the DGCs
+    RADEC = [] # list of RA/DEC coordinates
+    gal_imgs = [] # list of DGCs imgs given a subfield
     for i in range(np.min(lines),np.max(lines)):
         f = open(file_path)
-        k = f.readlines()[i][64]
+        k = f.readlines()[i][0:6]
         f.close()
-        if (k == 'A') or (k == 'B'):
+        print('k',k)
+        if k == 'circle':
             f = open(file_path)
-            a = f.readlines()[i][7:18]
+            a = f.readlines()[i][7:20] # RA coordinate in textfile
+            print('right ascension',a)
             f.close()
             f = open(file_path)
-            b = f.readlines()[i][19:31]
+            b = f.readlines()[i][21:34] # DEC coordinate in textfile
+            print('declination',b)
             f.close()
-            
+                
             coords.append(np.array([a,b]))
-            RADEC.append(RADEC_to_source(a,b,img_path,30))
-            
+            radec,gal_img = RADEC_to_source(a,b,img_path,30)
+            RADEC.append(radec)
+            gal_imgs.append(gal_img)
+                
     print(len(coords))
     print(len(RADEC))
-    return (np.array(coords),np.array(RADEC))
+    return (np.array(coords),np.array(RADEC),gal_imgs)
 
 def fit_B(DATA,isolist_I,x0,y0,sma,eps,pa):
     '''Computes the isolist of the B band using prior information in I band'''
     isolist2= []
     for isoB in isolist_I[1:]:
+        sclip = 3.0
         geo = isoB.sample.geometry
         sample = EllipseSample(DATA, geo.sma, geometry=geo, sclip=sclip, nclip=2, integrmode='median')
         sample.update(0)
@@ -115,6 +126,7 @@ def fit_V(DATA,isolist_I,x0,y0,sma,eps,pa):
     '''Computes the isolist of the V band using prior information in I band'''
     isolist3 = []
     for isoV in isolist_I[1:]:
+        sclip = 3.0
         geo = isoV.sample.geometry
         sample = EllipseSample(DATA, geo.sma, geometry=geo, sclip=sclip, nclip=2, integrmode='median')
         sample.update(0)

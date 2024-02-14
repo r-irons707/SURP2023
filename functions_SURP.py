@@ -145,6 +145,7 @@ def magnitude(flux):
     '''calculates the magnitude moving radially outward from the center of a galaxy'''
     mag = 2.5*np.log10(flux/0.16)
     return mag
+
 def mag_err(flux_err):
     '''calculates the error of the magnitudes'''
     mag_err = 2.5*np.log10(flux_err/0.16)
@@ -167,6 +168,7 @@ def sersic(r,mu0I,r0I,nI):
 # defining chi square function
 def chi_square(y_measured, y_expected,errors):
     return np.sum( np.power((y_measured - y_expected),2) / np.power(errors,2) )
+
 # define chi square reduced
 def chi_square_reduced(y_measured,y_expected,errors,number_parameters):
     return chi_square(y_measured,y_expected,errors)/(len(y_measured - number_parameters))
@@ -176,3 +178,9 @@ def eff_rad(n,r0):
     eff_rad = r0*(2.3026*Bn)**n
     return eff_rad
 
+# create brightness extraction array for the sersic fitting
+def info_grab(isolist,index):
+    array = []
+    for i in range(len(isolist.to_table())):
+        array.append(isolist.to_table()[i][index])
+    return array

@@ -183,4 +183,4 @@ def info_grab(isolist,index):
     array = []
     for i in range(len(isolist.to_table())):
         array.append(isolist.to_table()[i][index])
-    return array
+    return np.array(array)

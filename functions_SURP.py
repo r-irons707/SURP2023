@@ -162,7 +162,7 @@ def sersic(r,mu0I,r0I,nI):
         nI: sersic index
         '''
     muI = (mu0I + 1.0857*(r/r0I)**(1/nI))
-    return muI
+    return np.array([muI, mu0I, r0I, nI])
 
 # calculate chi-square and chi-square reduced
 # defining chi square function

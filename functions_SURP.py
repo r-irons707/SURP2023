@@ -95,7 +95,7 @@ def file_reader(file_path,lines,img_path):
             f.close()
                 
             coords.append(np.array([a,b]))
-            radec,gal_img = RADEC_to_source(a,b,img_path,30)
+            radec,gal_img = RADEC_to_source(a,b,img_path,50) # change to 30 when reading F1-Q0,1,2 and 50 when F1-Q3
             RADEC.append(radec)
             gal_imgs.append(gal_img)
                 
